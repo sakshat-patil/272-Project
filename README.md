@@ -1,6 +1,6 @@
 # 272-Project
 
-##1. AgentMirror – A Real-Time Security Framework for Autonomous AI Agents
+## 1. AgentMirror – A Real-Time Security Framework for Autonomous AI Agents
 Project Summary: AgentMirror is a sophisticated security layer designed to ensure the safe operation of autonomous AI agents. It functions like a "conscience" for the AI, using a dual-agent architecture. Before an autonomous agent can perform any action in a live environment, its proposed action is intercepted and reviewed by a specialized "mirror" agent. This validation process ensures that the agent's behavior aligns with predefined safety protocols and ethical guidelines, effectively preventing unintended or malicious outcomes.
 
 Key Features:
@@ -14,18 +14,15 @@ Contextual Safety Analysis: The reasoning model analyzes nuanced situations wher
 Real-Time Threat Prevention: The framework is built to operate in real time, preventing prompt injection attacks, sensitive data leaks, and other harmful behaviors before they can be executed.
 
 Tech Stack:
-
 Reasoning: Voyage AI
-
 Orchestration: A custom deterministic rules engine.
-
 Core Logic: Python
 
 Problem It Solves: As AI agents become more autonomous, the risk of them causing unintentional harm, leaking private data, or being manipulated by bad actors increases significantly. AgentMirror addresses the lack of a real-time safety net for these autonomous systems.
 
 Target Audience: Developers, DevOps engineers, and organizations deploying autonomous AI agents in business-critical or public-facing applications where safety and reliability are paramount.
 
-2. VidQuery – Interactive Video Question-Answering Platform
+## 2. VidQuery – Interactive Video Question-Answering Platform
 Project Summary: VidQuery is an intelligent video platform that transforms passive video consumption into an interactive Q&A session. Users can upload a video or link to one and ask specific, natural language questions about its content. The system analyzes both the visual frames and the audio transcript to provide precise, grounded answers. For example, a user could ask, "What was the key formula mentioned in the lecture?" or "Show me the part where the chef adds basil," and VidQuery would pinpoint the exact moment.
 
 Key Features:
@@ -39,20 +36,16 @@ Fine-Grained Retrieval: The system can locate information with high precision, o
 Context-Aware Answers: VidQuery doesn't just find keywords; it understands the context of the question to provide more relevant and accurate responses.
 
 Tech Stack:
-
 Embeddings: Voyage AI
-
 Speech-to-Text: OpenAI's Whisper
-
 ML Framework: PyTorch
-
 Backend: Python, FastAPI
 
 Problem It Solves: Videos contain vast amounts of information, but searching for specific details is incredibly tedious and inefficient. VidQuery solves this by making video content as easily searchable as a text document.
 
 Target Audience: Students watching lectures, professionals reviewing training modules, researchers analyzing video data, and content creators looking to make their material more accessible.
 
-3. AI-Powered Visual Support for Dementia Patients
+## 3. AI-Powered Visual Support for Dementia Patients
 Project Summary: This project is a compassionate AI assistant designed to support the cognitive needs of individuals with dementia. The system uses a visual interface (ideally smart glasses, but an MVP could use a laptop screen) to provide real-time memory cues and routine reminders. By accessing a secure, private database of the user's personal information—such as family members' names, photos, and daily schedules—the AI can generate gentle, empathetic prompts. For example, if the user looks at their daughter, the device could display "This is your daughter, Sarah."
 
 Key Features:
@@ -66,13 +59,9 @@ Privacy and Safety First: The architecture is designed as a closed loop to ensur
 Passive Visual Interface: Information is projected onto a screen or glasses, providing support without requiring complex interaction from the user.
 
 Tech Stack:
-
 Retrieval: Voyage AI
-
 Database: MongoDB
-
 Reasoning: LLM (e.g., OpenAI API, Llama)
-
 Hardware: Meta Glasses (for final product), Laptop/Tablet screen (for MVP)
 
 Problem It Solves: Dementia causes significant memory loss and confusion, which can lead to distress and a reduced quality of life. This tool aims to alleviate that burden by providing a constant, gentle source of memory support, empowering patients to maintain independence and connection.
