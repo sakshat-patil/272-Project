@@ -1,6 +1,6 @@
 # 272-Project
 
-1. AgentMirror – A Real-Time Security Framework for Autonomous AI Agents
+##1. AgentMirror – A Real-Time Security Framework for Autonomous AI Agents
 Project Summary: AgentMirror is a sophisticated security layer designed to ensure the safe operation of autonomous AI agents. It functions like a "conscience" for the AI, using a dual-agent architecture. Before an autonomous agent can perform any action in a live environment, its proposed action is intercepted and reviewed by a specialized "mirror" agent. This validation process ensures that the agent's behavior aligns with predefined safety protocols and ethical guidelines, effectively preventing unintended or malicious outcomes.
 
 Key Features:
