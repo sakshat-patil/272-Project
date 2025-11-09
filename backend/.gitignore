@@ -1,0 +1,162 @@
+# ============================================
+# Backend (Python/FastAPI) .gitignore
+# ============================================
+
+# Python Environment
+venv/
+env/
+ENV/
+.venv/
+.ENV/
+virtualenv/
+.Python
+pyvenv.cfg
+
+# Python Compiled Files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.pyo
+*.pyd
+*.pyc
+
+# Database Files
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+supply_chain.db
+test.db
+dev.db
+
+# Migration Files (optional - uncomment if you want to ignore)
+# alembic/versions/*.py
+# !alembic/versions/__init__.py
+
+# Flask/FastAPI Instance Folder
+instance/
+.webassets-cache
+
+# Pytest
+.pytest_cache/
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+*.cover
+.hypothesis/
+.pytest_cache/
+nosetests.xml
+coverage.xml
+
+# MyPy
+.mypy_cache/
+.dmypy.json
+dmypy.json
+
+# Pyre
+.pyre/
+
+# pytype
+.pytype/
+
+# IPython/Jupyter
+.ipynb_checkpoints/
+*.ipynb
+profile_default/
+ipython_config.py
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+.flaskenv
+*.env
+
+# API Keys (CRITICAL - NEVER COMMIT)
+**/GOOGLE_API_KEY.txt
+**/GEMINI_API_KEY.txt
+api_keys.txt
+secrets.json
+credentials.json
+
+# Logs
+*.log
+logs/
+app.log
+error.log
+access.log
+
+# Testing
+.tox/
+.coverage
+.coverage.*
+htmlcov/
+*.cover
+.hypothesis/
+
+# Documentation
+docs/_build/
+*.rst
+
+# PyCharm
+.idea/
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# Spyder
+.spyderproject
+.spyproject
+
+# Rope
+.ropeproject
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Backup Files
+*.bak
+*.backup
+*.swp
+*.swo
+*~
+
+# Data Files (optional - uncomment if needed)
+# data/
+# *.csv
+# *.json
+# *.xml
+
+# Uploads Folder (if you add file upload feature)
+uploads/
+temp_uploads/
+
+# Cache
+.cache/
+*.cache
+
+# FastAPI specific
+.pytest_cache/
+__pycache__/
+
+# Alembic (Database Migrations)
+# Uncomment if you don't want to track migration versions
+# alembic/versions/*.py
+
+# SQLAlchemy
+*.db-shm
+*.db-wal
+
+# Development Seeds (optional)
+# seeds/test_data.json

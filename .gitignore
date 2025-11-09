@@ -1,0 +1,80 @@
+# ============================================
+# Supply Chain Risk Monitor - Root .gitignore
+# ============================================
+
+# Environment Variables
+.env
+.env.local
+.env.*.local
+*.env
+
+# API Keys and Secrets
+**/api_keys.txt
+**/secrets.json
+**/.secrets/
+**/credentials.json
+
+# IDE and Editor Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# OS Files
+.DS_Store
+.AppleDouble
+.LSOverride
+Icon
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Logs
+*.log
+logs/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Temporary Files
+*.tmp
+*.temp
+temp/
+tmp/
+
+# Backup Files
+*.bak
+*.backup
+*.old
+*~.nib
+
+# Compressed Files
+*.zip
+*.tar
+*.tar.gz
+*.rar
+*.7z
+
+# Documentation Builds
+docs/_build/
+site/
+
+# Coverage Reports
+coverage/
+*.coverage
+.coverage.*
+htmlcov/
+.pytest_cache/
+
+# Distribution / Packaging
+dist/
+build/
+*.egg-info/
