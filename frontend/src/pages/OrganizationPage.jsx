@@ -18,6 +18,7 @@ import AgentActivityFeed from '../components/events/AgentActivityFeed';
 import RiskAssessmentDisplay from '../components/events/RiskAssessmentDisplay';
 import RecommendationsDisplay from '../components/events/RecommendationsDisplay';
 import PlaybookDisplay from '../components/events/PlaybookDisplay';
+import LiveWeatherFeed from '../components/events/LiveWeatherFeed';
 import { getRiskLevelColor, formatRiskScore } from '../utils/riskUtils';
 import { formatDate } from '../utils/formatters';
 import AnalysisLoader from '../components/events/AnalysisLoader';
@@ -106,6 +107,12 @@ const OrganizationPage = () => {
     await createEventMutation.mutateAsync(eventData);
   };
 
+  const handleViewWeatherEvent = (eventId) => {
+    setProcessingEventId(eventId);
+    setActiveTab('analysis');
+    setPollingInterval(2000); // Start polling for updates
+  };
+
   if (orgLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
@@ -133,6 +140,7 @@ const OrganizationPage = () => {
 
   const tabs = [
     { id: 'suppliers', label: 'Suppliers', icon: Users },
+    { id: 'weather', label: 'Live Weather', icon: TrendingUp },
     { id: 'analysis', label: 'Event Analysis', icon: AlertTriangle },
     { id: 'history', label: 'History', icon: Calendar },
   ];
@@ -277,6 +285,15 @@ const OrganizationPage = () => {
             ) : (
               <SupplierList suppliers={suppliers} />
             )}
+          </div>
+        )}
+
+        {activeTab === 'weather' && (
+          <div className="space-y-6">
+            <LiveWeatherFeed 
+              organizationId={id} 
+              onViewEvent={handleViewWeatherEvent}
+            />
           </div>
         )}
 
