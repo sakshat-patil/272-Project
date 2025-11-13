@@ -1,9 +1,14 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { AuthProvider } from './contexts/AuthContext';
+import ErrorBoundary from './components/ErrorBoundary';
+import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
 import OrganizationPage from './pages/OrganizationPage';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 // Create a client
@@ -19,17 +24,37 @@ const queryClient = new QueryClient({
 
 function App() {
   return (
-    <QueryClientProvider client={queryClient}>
-      <Router>
-        <Layout>
-          <Routes>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/organization/:id" element={<OrganizationPage />} />
-            <Route path="*" element={<NotFoundPage />} />
-          </Routes>
-        </Layout>
-      </Router>
-    </QueryClientProvider>
+    <ErrorBoundary>
+      <QueryClientProvider client={queryClient}>
+        <Router>
+          <AuthProvider>
+            <Routes>
+              {/* Public routes */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/signup" element={<SignupPage />} />
+              
+              {/* Protected routes */}
+              <Route path="/" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <HomePage />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              <Route path="/organization/:id" element={
+                <ProtectedRoute>
+                  <Layout>
+                    <OrganizationPage />
+                  </Layout>
+                </ProtectedRoute>
+              } />
+              
+              <Route path="*" element={<NotFoundPage />} />
+            </Routes>
+          </AuthProvider>
+        </Router>
+      </QueryClientProvider>
+    </ErrorBoundary>
   );
 }
 

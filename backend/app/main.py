@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from app.database import init_db
-from app.routers import organizations, suppliers, events, predictions, risk_history, weather
+from app.routers import organizations, suppliers, events, predictions, risk_history, weather, auth
 from app.services.weather_worker import start_weather_worker, stop_weather_worker
 
 
@@ -15,16 +15,16 @@ async def lifespan(app: FastAPI):
     init_db()
     print("✅ Database initialized")
     
-    # Start weather monitoring worker (disabled to avoid rate limits)
-    # await start_weather_worker()
-    # print("🌦️ Weather monitoring worker started")
+    # Start weather monitoring worker
+    await start_weather_worker()
+    print("🌦️ Weather monitoring worker started")
     
     yield
     
     # Shutdown
     print("👋 Shutting down...")
-    # stop_weather_worker()
-    print("🛑 Shutdown complete")
+    stop_weather_worker()
+    print("🛑 Weather worker stopped")
 
 
 # Create FastAPI app
@@ -45,6 +45,7 @@ app.add_middleware(
 )
 
 # Include routers
+app.include_router(auth.router)
 app.include_router(organizations.router)
 app.include_router(suppliers.router)
 app.include_router(events.router)

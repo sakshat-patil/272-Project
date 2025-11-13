@@ -1,0 +1,19 @@
+[run]
+omit =
+    app/agents/*
+    app/services/weather_monitor.py
+    app/services/weather_worker.py
+    app/routers/weather.py
+    */tests/*
+    */venv/*
+    */__pycache__/*
+
+[report]
+exclude_lines =
+    pragma: no cover
+    def __repr__
+    raise AssertionError
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    if TYPE_CHECKING:
+    @abstractmethod
