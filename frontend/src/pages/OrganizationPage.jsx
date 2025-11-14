@@ -18,7 +18,7 @@ import AgentActivityFeed from '../components/events/AgentActivityFeed';
 import RiskAssessmentDisplay from '../components/events/RiskAssessmentDisplay';
 import RecommendationsDisplay from '../components/events/RecommendationsDisplay';
 import PlaybookDisplay from '../components/events/PlaybookDisplay';
-import LiveWeatherFeed from '../components/events/LiveWeatherFeed';
+import LiveMonitoringFeed from '../components/events/LiveMonitoringFeed';
 import { getRiskLevelColor, formatRiskScore } from '../utils/riskUtils';
 import { formatDate } from '../utils/formatters';
 import AnalysisLoader from '../components/events/AnalysisLoader';
@@ -140,7 +140,7 @@ const OrganizationPage = () => {
 
   const tabs = [
     { id: 'suppliers', label: 'Suppliers', icon: Users },
-    { id: 'weather', label: 'Live Weather', icon: TrendingUp },
+    { id: 'monitoring', label: 'Live Monitoring', icon: TrendingUp },
     { id: 'analysis', label: 'Event Analysis', icon: AlertTriangle },
     { id: 'history', label: 'History', icon: Calendar },
   ];
@@ -288,9 +288,9 @@ const OrganizationPage = () => {
           </div>
         )}
 
-        {activeTab === 'weather' && (
+        {activeTab === 'monitoring' && (
           <div className="space-y-6">
-            <LiveWeatherFeed 
+            <LiveMonitoringFeed 
               organizationId={id} 
               onViewEvent={handleViewWeatherEvent}
             />

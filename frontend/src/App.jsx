@@ -7,6 +7,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
 import OrganizationPage from './pages/OrganizationPage';
+import MonitoringPage from './pages/MonitoringPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -47,6 +48,11 @@ function App() {
                     <OrganizationPage />
                   </Layout>
                 </ProtectedRoute>
+              } />
+              <Route path="/monitoring" element={
+                <Layout>
+                  <MonitoringPage />
+                </Layout>
               } />
               
               <Route path="*" element={<NotFoundPage />} />

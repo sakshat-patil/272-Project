@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
 
 from app.database import init_db
-from app.routers import organizations, suppliers, events, predictions, risk_history, weather, auth
+from app.routers import organizations, suppliers, events, predictions, risk_history, weather, auth, enhanced_data, monitoring
 from app.services.weather_worker import start_weather_worker, stop_weather_worker
 
 
@@ -52,6 +52,8 @@ app.include_router(events.router)
 app.include_router(predictions.router)
 app.include_router(risk_history.router)
 app.include_router(weather.router)
+app.include_router(enhanced_data.router)  # Tier 1 Enhanced APIs
+app.include_router(monitoring.router)  # Monitoring & Logging
 
 
 @app.get("/")

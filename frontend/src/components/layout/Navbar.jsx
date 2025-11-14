@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Building2, Activity, LogOut, User } from 'lucide-react';
+import { Building2, Activity, LogOut, User, LineChart } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
 import Button from '../ui/Button';
 
@@ -33,6 +33,18 @@ const Navbar = () => {
             >
               <Building2 className="inline-block h-4 w-4 mr-1" />
               Organizations
+            </Link>
+            
+            <Link
+              to="/monitoring"
+              className={`px-3 py-2 rounded-md text-sm font-medium ${
+                location.pathname === '/monitoring'
+                  ? 'bg-primary text-white'
+                  : 'text-gray-700 hover:bg-gray-100'
+              }`}
+            >
+              <LineChart className="inline-block h-4 w-4 mr-1" />
+              Monitoring
             </Link>
             
             {user && (
