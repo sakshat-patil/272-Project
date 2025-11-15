@@ -248,17 +248,17 @@ export default function LiveWeatherFeed({ organizationId, onViewEvent }) {
               <div className="mt-2 space-x-4 text-sm">
                 {critical_alerts.length > 0 && (
                   <span className="text-red-700">
-                    🔴 {critical_alerts.length} Critical
+                    {critical_alerts.length} Critical
                   </span>
                 )}
                 {high_alerts.length > 0 && (
                   <span className="text-orange-700">
-                    🟠 {high_alerts.length} High
+                    {high_alerts.length} High
                   </span>
                 )}
                 {moderate_alerts.length > 0 && (
                   <span className="text-yellow-700">
-                    🟡 {moderate_alerts.length} Moderate
+                    {moderate_alerts.length} Moderate
                   </span>
                 )}
               </div>

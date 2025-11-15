@@ -36,18 +36,73 @@ export default function LiveMonitoringFeed({ organizationId, onViewEvent }) {
   // Fetch enhanced monitoring data
   const fetchEnhancedData = async () => {
     try {
-      const [portsRes, trendsRes, riskRes] = await Promise.all([
+      const [portsRes, trendsRes, riskRes, exchangeRes] = await Promise.all([
         fetch('http://localhost:8000/api/enhanced/shipping/major-ports'),
         fetch('http://localhost:8000/api/enhanced/social/trends?keyword=supply%20chain'),
-        fetch(`http://localhost:8000/api/enhanced/risk/dashboard?organization_id=${organizationId}`)
+        fetch(`http://localhost:8000/api/enhanced/risk/dashboard?organization_id=${organizationId}`),
+        fetch('http://localhost:8000/api/enhanced/financial/exchange-rates?base_currency=USD')
       ]);
+
+      const riskData = riskRes.ok ? await riskRes.json() : null;
+      
+      // Determine relevant commodities based on organization's industry
+      let commoditiesToFetch = [];
+      
+      if (riskData?.organization) {
+        const orgName = riskData.organization.toLowerCase();
+        
+        // Pharmaceutical companies
+        if (orgName.includes('pharma') || orgName.includes('bio') || orgName.includes('medical') || orgName.includes('health')) {
+          commoditiesToFetch = ['oil', 'natural_gas', 'silver', 'platinum', 'palladium', 'ethanol', 'corn'];
+        } 
+        // Automotive/EV companies
+        else if (orgName.includes('auto') || orgName.includes('electric') || orgName.includes('vehicle') || orgName.includes('motor')) {
+          commoditiesToFetch = ['oil', 'copper', 'lithium', 'aluminum', 'nickel', 'cobalt', 'steel'];
+        } 
+        // Technology/Electronics companies
+        else if (orgName.includes('tech') || orgName.includes('electronic') || orgName.includes('semiconductor') || orgName.includes('chip')) {
+          commoditiesToFetch = ['copper', 'gold', 'silver', 'lithium', 'silicon', 'palladium', 'rare_earth'];
+        }
+        // Food/Agriculture companies
+        else if (orgName.includes('food') || orgName.includes('agri') || orgName.includes('farm') || orgName.includes('grain')) {
+          commoditiesToFetch = ['corn', 'wheat', 'soybeans', 'sugar', 'coffee', 'natural_gas', 'oil'];
+        }
+        // Energy/Oil companies
+        else if (orgName.includes('energy') || orgName.includes('oil') || orgName.includes('gas') || orgName.includes('petroleum')) {
+          commoditiesToFetch = ['oil', 'natural_gas', 'coal', 'uranium', 'gasoline', 'heating_oil', 'diesel'];
+        }
+        // Construction/Manufacturing
+        else if (orgName.includes('construct') || orgName.includes('building') || orgName.includes('manufact')) {
+          commoditiesToFetch = ['steel', 'copper', 'aluminum', 'lumber', 'cement', 'iron_ore', 'oil'];
+        }
+        // Default for general companies
+        else {
+          commoditiesToFetch = ['oil', 'copper', 'gold', 'natural_gas', 'steel', 'aluminum'];
+        }
+      } else {
+        // Fallback if no organization data
+        commoditiesToFetch = ['oil', 'copper', 'gold', 'natural_gas', 'steel'];
+      }
+
+      // Fetch commodities
+      const commoditiesRes = await fetch('http://localhost:8000/api/enhanced/financial/commodities', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ commodities: commoditiesToFetch })
+      });
+
+      const commoditiesData = commoditiesRes.ok ? await commoditiesRes.json() : null;
+      console.log('Commodities API response:', commoditiesData);
 
       const data = {
         ports: portsRes.ok ? await portsRes.json() : null,
         trends: trendsRes.ok ? await trendsRes.json() : null,
-        risk: riskRes.ok ? await riskRes.json() : null,
+        risk: riskData,
+        commodities: commoditiesData,
+        exchangeRates: exchangeRes.ok ? await exchangeRes.json() : null,
       };
 
+      console.log('Enhanced data:', data);
       setEnhancedData(data);
     } catch (err) {
       console.error('Error fetching enhanced data:', err);
@@ -152,7 +207,11 @@ export default function LiveMonitoringFeed({ organizationId, onViewEvent }) {
           <ShippingTab portsData={enhancedData?.ports} />
         )}
         {activeTab === 'markets' && (
-          <MarketsTab trendsData={enhancedData?.trends} />
+          <MarketsTab 
+            trendsData={enhancedData?.trends} 
+            commoditiesData={enhancedData?.commodities}
+            exchangeRatesData={enhancedData?.exchangeRates}
+          />
         )}
         {activeTab === 'risks' && (
           <RisksTab riskData={enhancedData?.risk} />
@@ -261,7 +320,7 @@ function ShippingTab({ portsData }) {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <Card className="p-4">
-            <h4 className="font-semibold text-gray-900 mb-2">📊 Features</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">Features</h4>
             <ul className="text-sm text-gray-600 space-y-1">
               <li>• Real-time port congestion levels (0-10 scale)</li>
               <li>• Average wait times for vessels</li>
@@ -271,7 +330,7 @@ function ShippingTab({ portsData }) {
           </Card>
           
           <Card className="p-4">
-            <h4 className="font-semibold text-gray-900 mb-2">🚢 Tracked Ports</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">Tracked Ports</h4>
             <ul className="text-sm text-gray-600 space-y-1">
               <li>• Los Angeles (Americas)</li>
               <li>• Shanghai (Asia-Pacific)</li>
@@ -344,7 +403,38 @@ function ShippingTab({ portsData }) {
 }
 
 // Markets Tab Component
-function MarketsTab({ trendsData }) {
+function MarketsTab({ trendsData, commoditiesData, exchangeRatesData }) {
+  // Extract commodity prices - handle nested structure from API
+  let commodities = commoditiesData || {};
+  
+  // Fallback to mock data if API returns empty (Yahoo Finance may be rate limited)
+  if (Object.keys(commodities).length === 0) {
+    commodities = {
+      oil: { current_price: 78.50, change_30d: 2.3, trend: 'UP' },
+      natural_gas: { current_price: 3.42, change_30d: -1.2, trend: 'STABLE' },
+      silver: { current_price: 24.15, change_30d: 3.8, trend: 'UP' },
+      platinum: { current_price: 945.00, change_30d: 1.5, trend: 'UP' },
+      palladium: { current_price: 1285.00, change_30d: -2.1, trend: 'DOWN' },
+      ethanol: { current_price: 2.18, change_30d: 0.7, trend: 'STABLE' },
+      corn: { current_price: 4.52, change_30d: -3.2, trend: 'DOWN' },
+      copper: { current_price: 3.85, change_30d: 5.7, trend: 'UP' },
+      lithium: { current_price: 15.20, change_30d: 0.5, trend: 'STABLE' },
+      aluminum: { current_price: 2.34, change_30d: 1.8, trend: 'UP' },
+      nickel: { current_price: 16.85, change_30d: 4.2, trend: 'UP' },
+      cobalt: { current_price: 32.50, change_30d: -1.5, trend: 'STABLE' },
+      steel: { current_price: 825.00, change_30d: 2.9, trend: 'UP' },
+      gold: { current_price: 2045.00, change_30d: -0.8, trend: 'STABLE' },
+      wheat: { current_price: 5.78, change_30d: 1.2, trend: 'UP' },
+      soybeans: { current_price: 13.45, change_30d: -0.9, trend: 'STABLE' },
+      sugar: { current_price: 0.21, change_30d: 2.4, trend: 'UP' },
+      coffee: { current_price: 1.95, change_30d: 4.1, trend: 'UP' },
+      lumber: { current_price: 485.00, change_30d: -2.8, trend: 'DOWN' }
+    };
+  }
+  
+  // Extract exchange rates
+  const rates = exchangeRatesData?.rates || {};
+  
   return (
     <div className="space-y-4">
       <div className="bg-green-50 border-l-4 border-green-500 p-4">
@@ -395,43 +485,51 @@ function MarketsTab({ trendsData }) {
             )}
           </Card>
           
-          {/* Commodity Prices Placeholder */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <Card className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-600">Oil</span>
-                <DollarSign className="w-4 h-4 text-gray-400" />
+          {/* Commodity Prices */}
+          <div className="space-y-3">
+            {!commoditiesData || Object.keys(commoditiesData).length === 0 ? (
+              <div className="bg-yellow-50 border-l-4 border-yellow-500 p-3 text-sm">
+                <div className="flex items-center gap-2">
+                  <AlertTriangle className="w-4 h-4 text-yellow-600" />
+                  <span className="text-yellow-800">Using demo commodity prices - Live API may be rate limited</span>
+                </div>
               </div>
-              <div className="text-2xl font-bold text-gray-900">$82.50</div>
-              <div className="text-sm text-green-600 mt-1">+2.3% 30d</div>
-            </Card>
+            ) : null}
             
-            <Card className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-600">Gold</span>
-                <DollarSign className="w-4 h-4 text-gray-400" />
+            {Object.keys(commodities).length > 0 ? (
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {Object.entries(commodities).map(([name, data]) => {
+                  const price = data.current_price || data.price || data;
+                  const change = data.change_30d;
+                  
+                  return (
+                    <Card key={name} className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="text-sm font-medium text-gray-600 capitalize">{name}</span>
+                        <DollarSign className="w-4 h-4 text-gray-400" />
+                      </div>
+                      <div className="text-2xl font-bold text-gray-900">
+                        ${typeof price === 'number' ? price.toFixed(2) : 'N/A'}
+                      </div>
+                      {change !== undefined && (
+                        <div className={`text-sm mt-1 ${change >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                          {change >= 0 ? '+' : ''}{change}% 30d
+                        </div>
+                      )}
+                      {data.trend && (
+                        <div className="text-xs text-gray-500 mt-1">
+                          Trend: {data.trend}
+                        </div>
+                      )}
+                    </Card>
+                  );
+                })}
               </div>
-              <div className="text-2xl font-bold text-gray-900">$2,045</div>
-              <div className="text-sm text-red-600 mt-1">-1.2% 30d</div>
-            </Card>
-            
-            <Card className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-600">Copper</span>
-                <DollarSign className="w-4 h-4 text-gray-400" />
-              </div>
-              <div className="text-2xl font-bold text-gray-900">$3.85</div>
-              <div className="text-sm text-green-600 mt-1">+5.7% 30d</div>
-            </Card>
-            
-            <Card className="p-4">
-              <div className="flex items-center justify-between mb-2">
-                <span className="text-sm font-medium text-gray-600">Lithium</span>
-                <DollarSign className="w-4 h-4 text-gray-400" />
-              </div>
-              <div className="text-2xl font-bold text-gray-900">$15.20</div>
-              <div className="text-sm text-gray-600 mt-1">+0.5% 30d</div>
-            </Card>
+            ) : (
+              <Card className="p-6 text-center text-gray-500">
+                Loading commodity prices...
+              </Card>
+            )}
           </div>
         </>
       ) : (
@@ -441,55 +539,88 @@ function MarketsTab({ trendsData }) {
       )}
 
       <Card className="p-6">
-        <h4 className="font-semibold text-gray-900 mb-4">Exchange Rates (USD)</h4>
-        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
-          <div className="p-3 bg-gray-50 rounded">
-            <div className="text-gray-600">EUR</div>
-            <div className="font-bold text-gray-900">0.866</div>
+        <h4 className="font-semibold text-gray-900 mb-4">
+          Exchange Rates ({exchangeRatesData?.base || 'USD'})
+        </h4>
+        {Object.keys(rates).length > 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-5 gap-4 text-sm">
+            {Object.entries(rates).slice(0, 10).map(([currency, rate]) => (
+              <div key={currency} className="p-3 bg-gray-50 rounded">
+                <div className="text-gray-600">{currency}</div>
+                <div className="font-bold text-gray-900">
+                  {typeof rate === 'number' ? rate.toFixed(3) : rate}
+                </div>
+              </div>
+            ))}
           </div>
-          <div className="p-3 bg-gray-50 rounded">
-            <div className="text-gray-600">GBP</div>
-            <div className="font-bold text-gray-900">0.761</div>
+        ) : (
+          <div className="text-center py-4 text-gray-500">
+            Loading exchange rates...
           </div>
-          <div className="p-3 bg-gray-50 rounded">
-            <div className="text-gray-600">JPY</div>
-            <div className="font-bold text-gray-900">153.62</div>
-          </div>
-          <div className="p-3 bg-gray-50 rounded">
-            <div className="text-gray-600">CNY</div>
-            <div className="font-bold text-gray-900">7.13</div>
-          </div>
-          <div className="p-3 bg-gray-50 rounded">
-            <div className="text-gray-600">INR</div>
-            <div className="font-bold text-gray-900">83.21</div>
-          </div>
-        </div>
+        )}
       </Card>
       
       <Card className="p-6">
-        <h4 className="font-semibold text-gray-900 mb-4">💡 Market Insights</h4>
+        <h4 className="font-semibold text-gray-900 mb-4">Market Insights</h4>
         <div className="space-y-3 text-sm">
-          <div className="flex items-start gap-3 p-3 bg-blue-50 rounded">
-            <BarChart3 className="w-5 h-5 text-blue-600 mt-0.5" />
-            <div>
-              <div className="font-medium text-gray-900">Supply Chain Interest Rising</div>
-              <div className="text-gray-600">Search trends indicate increased focus on logistics optimization</div>
+          {trendsData?.trending && (
+            <div className="flex items-start gap-3 p-3 bg-blue-50 rounded">
+              <BarChart3 className="w-5 h-5 text-blue-600 mt-0.5" />
+              <div>
+                <div className="font-medium text-gray-900">
+                  {trendsData.keyword} Interest {trendsData.change_percent >= 0 ? 'Rising' : 'Declining'}
+                </div>
+                <div className="text-gray-600">
+                  Search trends {trendsData.change_percent >= 0 ? 'up' : 'down'} {Math.abs(trendsData.change_percent)}% - 
+                  {trendsData.change_percent >= 0 ? ' increased focus on supply chain optimization' : ' decreased search activity'}
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="flex items-start gap-3 p-3 bg-green-50 rounded">
-            <TrendingUp className="w-5 h-5 text-green-600 mt-0.5" />
-            <div>
-              <div className="font-medium text-gray-900">Copper Prices Climbing</div>
-              <div className="text-gray-600">Strong demand from EV manufacturers driving price increases</div>
+          )}
+          
+          {commodities.copper?.current_price && commodities.copper.current_price > 3.5 && (
+            <div className="flex items-start gap-3 p-3 bg-green-50 rounded">
+              <TrendingUp className="w-5 h-5 text-green-600 mt-0.5" />
+              <div>
+                <div className="font-medium text-gray-900">Copper Prices Elevated</div>
+                <div className="text-gray-600">
+                  Current price: ${commodities.copper.current_price.toFixed(2)} - 
+                  {commodities.copper.trend === 'UP' ? ' Strong upward momentum' : ' Price holding steady'}
+                </div>
+              </div>
             </div>
-          </div>
-          <div className="flex items-start gap-3 p-3 bg-yellow-50 rounded">
-            <DollarSign className="w-5 h-5 text-yellow-600 mt-0.5" />
-            <div>
-              <div className="font-medium text-gray-900">Currency Volatility Alert</div>
-              <div className="text-gray-600">Monitor EUR/USD fluctuations for European supplier costs</div>
+          )}
+          
+          {commodities.oil?.current_price && commodities.oil.current_price > 80 && (
+            <div className="flex items-start gap-3 p-3 bg-orange-50 rounded">
+              <DollarSign className="w-5 h-5 text-orange-600 mt-0.5" />
+              <div>
+                <div className="font-medium text-gray-900">Oil Prices Elevated</div>
+                <div className="text-gray-600">
+                  Current price: ${commodities.oil.current_price.toFixed(2)}/barrel - 
+                  Impacts shipping and logistics costs
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+          
+          {rates.EUR && (rates.EUR < 0.85 || rates.EUR > 0.95) && (
+            <div className="flex items-start gap-3 p-3 bg-yellow-50 rounded">
+              <DollarSign className="w-5 h-5 text-yellow-600 mt-0.5" />
+              <div>
+                <div className="font-medium text-gray-900">Currency Volatility Alert</div>
+                <div className="text-gray-600">
+                  EUR/USD at {rates.EUR?.toFixed(3)} - Monitor European supplier costs
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {!trendsData && Object.keys(commodities).length === 0 && Object.keys(rates).length === 0 && (
+            <div className="text-center py-4 text-gray-500">
+              Loading market insights...
+            </div>
+          )}
         </div>
       </Card>
     </div>
@@ -498,13 +629,70 @@ function MarketsTab({ trendsData }) {
 
 // Risks Tab Component
 function RisksTab({ riskData }) {
-  const mockSuppliers = [
-    { id: 1, name: "TSMC", country: "Taiwan", aggregate_risk_score: 45 },
-    { id: 2, name: "Samsung Electronics", country: "South Korea", aggregate_risk_score: 32 },
-    { id: 3, name: "Foxconn", country: "China", aggregate_risk_score: 58 },
-    { id: 4, name: "Intel Corporation", country: "USA", aggregate_risk_score: 25 },
-    { id: 5, name: "SK Hynix", country: "South Korea", aggregate_risk_score: 38 },
-  ];
+  // Use actual suppliers from risk data API, fallback to empty array
+  const suppliers = riskData?.suppliers || [];
+  
+  // Extract unique countries from suppliers with their risk data
+  const getCountryRisks = () => {
+    if (!suppliers || suppliers.length === 0) return [];
+    
+    const countryMap = new Map();
+    
+    suppliers.forEach(supplier => {
+      const country = supplier.country;
+      if (!countryMap.has(country)) {
+        // Get geopolitical risk from supplier's risk data
+        const geoRisk = supplier.risk_data?.geopolitical?.conflict_level || 0;
+        const affectedSuppliers = suppliers
+          .filter(s => s.country === country)
+          .map(s => s.name);
+        
+        // Determine risk level and styling
+        let riskLevel, badge, bgColor, borderColor, textColor;
+        if (geoRisk >= 7) {
+          riskLevel = 'CRITICAL';
+          badge = 'destructive';
+          bgColor = 'bg-red-50';
+          borderColor = 'border-red-500';
+          textColor = 'text-red-700';
+        } else if (geoRisk >= 5) {
+          riskLevel = 'HIGH';
+          badge = 'destructive';
+          bgColor = 'bg-orange-50';
+          borderColor = 'border-orange-500';
+          textColor = 'text-orange-700';
+        } else if (geoRisk >= 3) {
+          riskLevel = 'MODERATE';
+          badge = 'warning';
+          bgColor = 'bg-yellow-50';
+          borderColor = 'border-yellow-500';
+          textColor = 'text-yellow-700';
+        } else {
+          riskLevel = 'LOW';
+          badge = 'success';
+          bgColor = 'bg-green-50';
+          borderColor = 'border-green-500';
+          textColor = 'text-green-700';
+        }
+        
+        countryMap.set(country, {
+          country,
+          riskLevel: geoRisk,
+          badge,
+          bgColor,
+          borderColor,
+          textColor,
+          riskLevelText: riskLevel,
+          affectedSuppliers: affectedSuppliers.join(', ')
+        });
+      }
+    });
+    
+    // Sort by risk level (highest first)
+    return Array.from(countryMap.values()).sort((a, b) => b.riskLevel - a.riskLevel);
+  };
+  
+  const countryRisks = getCountryRisks();
 
   return (
     <div className="space-y-4">
@@ -563,82 +751,70 @@ function RisksTab({ riskData }) {
 
       {/* High Risk Countries */}
       <Card className="p-6">
-        <h4 className="font-semibold text-gray-900 mb-4">🌍 Geopolitical Hotspots</h4>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="p-4 bg-red-50 border-l-4 border-red-500 rounded">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-red-900">Ukraine</span>
-              <Badge variant="destructive">CRITICAL</Badge>
-            </div>
-            <div className="text-sm text-red-700">
-              <div>Conflict Level: 9/10</div>
-              <div>145 events in last 30 days</div>
-            </div>
+        <h4 className="font-semibold text-gray-900 mb-4">Geopolitical Risk by Country</h4>
+        {countryRisks.length > 0 ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {countryRisks.map((countryData) => (
+              <div key={countryData.country} className={`p-4 ${countryData.bgColor} border-l-4 ${countryData.borderColor} rounded`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className={`font-semibold ${countryData.textColor.replace('text-', 'text-').replace('-700', '-900')}`}>
+                    {countryData.country}
+                  </span>
+                  <Badge variant={countryData.badge}>{countryData.riskLevelText}</Badge>
+                </div>
+                <div className={`text-sm ${countryData.textColor}`}>
+                  <div>Risk Level: {countryData.riskLevel}/10</div>
+                  <div className="mt-2 font-medium text-xs">Affects:</div>
+                  <div className="text-xs truncate" title={countryData.affectedSuppliers}>
+                    {countryData.affectedSuppliers}
+                  </div>
+                </div>
+              </div>
+            ))}
           </div>
-          
-          <div className="p-4 bg-orange-50 border-l-4 border-orange-500 rounded">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-orange-900">Israel/Gaza</span>
-              <Badge variant="destructive">CRITICAL</Badge>
-            </div>
-            <div className="text-sm text-orange-700">
-              <div>Conflict Level: 8/10</div>
-              <div>89 events in last 30 days</div>
-            </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <Globe className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+            <p>Loading geopolitical risk data...</p>
           </div>
-          
-          <div className="p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-yellow-900">Taiwan Strait</span>
-              <Badge variant="warning">ELEVATED</Badge>
-            </div>
-            <div className="text-sm text-yellow-700">
-              <div>Conflict Level: 4/10</div>
-              <div>Heightened tensions</div>
-            </div>
-          </div>
-          
-          <div className="p-4 bg-green-50 border-l-4 border-green-500 rounded">
-            <div className="flex items-center justify-between mb-2">
-              <span className="font-semibold text-green-900">South Korea</span>
-              <Badge variant="success">LOW</Badge>
-            </div>
-            <div className="text-sm text-green-700">
-              <div>Conflict Level: 2/10</div>
-              <div>Stable environment</div>
-            </div>
-          </div>
-        </div>
+        )}
       </Card>
 
       {/* Supplier Risk Scores */}
       <Card className="p-6">
-        <h4 className="font-semibold text-gray-900 mb-4">📊 Supplier Risk Scores</h4>
-        <div className="space-y-3">
-          {mockSuppliers.map((supplier) => (
-            <div key={supplier.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
-              <div className="flex items-center gap-3">
-                <div className={`w-3 h-3 rounded-full ${
-                  supplier.aggregate_risk_score >= 70 ? 'bg-red-500' :
-                  supplier.aggregate_risk_score >= 40 ? 'bg-yellow-500' : 'bg-green-500'
-                }`}></div>
-                <div>
-                  <div className="font-medium text-gray-900">{supplier.name}</div>
-                  <div className="text-sm text-gray-500">{supplier.country}</div>
+        <h4 className="font-semibold text-gray-900 mb-4">Supplier Risk Scores</h4>
+        {suppliers.length > 0 ? (
+          <div className="space-y-3">
+            {suppliers.map((supplier) => (
+              <div key={supplier.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className={`w-3 h-3 rounded-full ${
+                    supplier.aggregate_risk_score >= 70 ? 'bg-red-500' :
+                    supplier.aggregate_risk_score >= 40 ? 'bg-yellow-500' : 'bg-green-500'
+                  }`}></div>
+                  <div>
+                    <div className="font-medium text-gray-900">{supplier.name}</div>
+                    <div className="text-sm text-gray-500">{supplier.country}</div>
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-lg font-bold text-gray-900">{supplier.aggregate_risk_score}/100</div>
+                  <div className="text-xs text-gray-500">Risk Score</div>
                 </div>
               </div>
-              <div className="text-right">
-                <div className="text-lg font-bold text-gray-900">{supplier.aggregate_risk_score}/100</div>
-                <div className="text-xs text-gray-500">Risk Score</div>
-              </div>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 text-gray-500">
+            <Globe className="w-12 h-12 mx-auto text-gray-400 mb-2" />
+            <p>Loading supplier risk data...</p>
+          </div>
+        )}
       </Card>
       
       {/* Sanctions Monitoring */}
       <Card className="p-6">
-        <h4 className="font-semibold text-gray-900 mb-4">🚫 Sanctions Monitoring</h4>
+        <h4 className="font-semibold text-gray-900 mb-4">Sanctions Monitoring</h4>
         <div className="space-y-3 text-sm">
           <div className="flex items-start gap-3 p-3 bg-gray-50 rounded">
             <AlertTriangle className="w-5 h-5 text-gray-400 mt-0.5" />
@@ -650,7 +826,7 @@ function RisksTab({ riskData }) {
           </div>
           
           <div className="p-3 bg-blue-50 rounded">
-            <div className="font-medium text-blue-900 mb-1">📡 Real-time Monitoring</div>
+            <div className="font-medium text-blue-900 mb-1">Real-time Monitoring</div>
             <div className="text-blue-700 text-xs">
               Continuously checking against OFAC, UN, EU sanctions lists
             </div>

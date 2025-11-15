@@ -41,7 +41,7 @@ const EnhancedDataPanel = ({ organizationId }) => {
             
             {/* Financial Data */}
             <div className="p-4 border rounded-lg">
-              <h3 className="font-semibold text-sm text-gray-600 mb-2">📊 Financial</h3>
+              <h3 className="font-semibold text-sm text-gray-600 mb-2">Financial</h3>
               {data?.tests?.stock_data && (
                 <div className="space-y-1">
                   <p className="text-lg font-bold">{data.tests.stock_data.ticker}</p>
@@ -55,7 +55,7 @@ const EnhancedDataPanel = ({ organizationId }) => {
 
             {/* Shipping Data */}
             <div className="p-4 border rounded-lg">
-              <h3 className="font-semibold text-sm text-gray-600 mb-2">🚢 Shipping</h3>
+              <h3 className="font-semibold text-sm text-gray-600 mb-2">Shipping</h3>
               {data?.tests?.port_status && (
                 <div className="space-y-1">
                   <p className="text-lg font-bold">{data.tests.port_status.port}</p>
@@ -69,7 +69,7 @@ const EnhancedDataPanel = ({ organizationId }) => {
 
             {/* Geopolitical Data */}
             <div className="p-4 border rounded-lg">
-              <h3 className="font-semibold text-sm text-gray-600 mb-2">⚠️ Geopolitical</h3>
+              <h3 className="font-semibold text-sm text-gray-600 mb-2">Geopolitical</h3>
               {data?.tests?.conflict && (
                 <div className="space-y-1">
                   <p className="text-lg font-bold">{data.tests.conflict.country}</p>
