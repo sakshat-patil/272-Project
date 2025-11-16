@@ -13,3 +13,6 @@ run:
     - python3 -m pip install --upgrade pip setuptools wheel
     - python3 -m pip install --no-cache-dir -r /app/backend/requirements.txt
   command: python3 /app/backend/run_server.py
+  env:
+    - name: GOOGLE_API_KEY
+      value: AIzaSyBGXWTPU1M37Ido3CiPkJMVrIWga3YhRYU

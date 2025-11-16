@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 
 const AuthContext = createContext(null);
 
@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
 
   const fetchCurrentUser = async () => {
     try {
-      const response = await axios.get('http://localhost:8000/api/auth/me/', {
+      const response = await api.get('/api/auth/me/', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUser(response.data);
@@ -48,14 +48,14 @@ export const AuthProvider = ({ children }) => {
       formData.append('username', username);
       formData.append('password', password);
 
-      const response = await axios.post('http://localhost:8000/api/auth/login/', formData);
+      const response = await api.post('/api/auth/login/', formData);
       const { access_token } = response.data;
 
       localStorage.setItem('token', access_token);
       setToken(access_token);
 
       // Fetch user info
-      const userResponse = await axios.get('http://localhost:8000/api/auth/me/', {
+      const userResponse = await api.get('/api/auth/me/', {
         headers: { Authorization: `Bearer ${access_token}` }
       });
       setUser(userResponse.data);
@@ -72,7 +72,7 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (userData) => {
     try {
-      const response = await axios.post('http://localhost:8000/api/auth/signup/', userData);
+      const response = await api.post('/api/auth/signup/', userData);
       
       // Auto-login after signup
       const loginResult = await login(userData.username, userData.password);

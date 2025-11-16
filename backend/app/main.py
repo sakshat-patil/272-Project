@@ -41,6 +41,8 @@ app.add_middleware(
     allow_origins=[
         "http://localhost:5173",
         "http://localhost:3000",
+        "http://localhost:3001",
+        "http://localhost:3002",
         "https://main.dfvn6xpowx1mj.amplifyapp.com"
     ],
     allow_credentials=True,

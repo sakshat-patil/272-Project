@@ -5,6 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 import Spinner from '../ui/Spinner';
 import Badge from '../ui/Badge';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
 const EnhancedDataPanel = ({ organizationId }) => {
   const [activeApi, setActiveApi] = useState('trends');
 
@@ -12,7 +14,7 @@ const EnhancedDataPanel = ({ organizationId }) => {
   const { data, isLoading } = useQuery({
     queryKey: ['enhanced-test'],
     queryFn: async () => {
-      const response = await axios.get('http://localhost:8000/api/enhanced/test/all');
+      const response = await axios.get(`${API_BASE_URL}/api/enhanced/test/all`);
       return response.data;
     },
     refetchInterval: 60000, // Refresh every minute

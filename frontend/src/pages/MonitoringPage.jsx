@@ -4,6 +4,8 @@ import Badge from '../components/ui/Badge';
 import Spinner from '../components/ui/Spinner';
 import Alert from '../components/ui/Alert';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
 const MonitoringPage = () => {
   const [dashboardData, setDashboardData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -12,7 +14,7 @@ const MonitoringPage = () => {
 
   const fetchMonitoringData = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/monitoring/dashboard');
+      const response = await fetch(`${API_BASE_URL}/api/monitoring/dashboard`);
       if (!response.ok) throw new Error('Failed to fetch monitoring data');
       const data = await response.json();
       setDashboardData(data);

@@ -4,6 +4,8 @@ import Badge from '../ui/Badge';
 import { Card } from '../ui/Card';
 import { formatDistanceToNow } from '../../utils/formatters';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
 /**
  * Live Weather Feed Component
  * Polls real-time weather data from Open-Meteo API via backend
@@ -20,7 +22,7 @@ export default function LiveWeatherFeed({ organizationId, onViewEvent }) {
     // Fetch weather data
   const fetchWeather = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/weather/organization/${organizationId}/`);
+      const response = await fetch(`${API_BASE_URL}/api/weather/organization/${organizationId}/`);
       if (!response.ok) throw new Error('Failed to fetch weather data');
       const data = await response.json();
       setWeatherData(data);
@@ -37,7 +39,7 @@ export default function LiveWeatherFeed({ organizationId, onViewEvent }) {
   // Fetch worker status
   const fetchWorkerStatus = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/weather/worker/status/');
+      const response = await fetch(`${API_BASE_URL}/api/weather/worker/status/`);
       if (response.ok) {
         const data = await response.json();
         setWorkerStatus(data);
@@ -50,7 +52,7 @@ export default function LiveWeatherFeed({ organizationId, onViewEvent }) {
   // Fetch recent auto-generated events
   const fetchAutoEvents = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/events/organization/${organizationId}/?limit=5`);
+      const response = await fetch(`${API_BASE_URL}/api/events/organization/${organizationId}/?limit=5`);
       if (response.ok) {
         const data = await response.json();
         // Filter for auto-detected weather events
@@ -85,7 +87,7 @@ export default function LiveWeatherFeed({ organizationId, onViewEvent }) {
     try {
       setLoading(true);
       const response = await fetch(
-        `http://localhost:8000/api/weather/organization/${organizationId}/analyze-alerts`,
+        `${API_BASE_URL}/api/weather/organization/${organizationId}/analyze-alerts`,
         { method: 'POST' }
       );
       if (!response.ok) throw new Error('Failed to analyze weather alerts');

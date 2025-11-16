@@ -4,6 +4,8 @@ import Badge from '../ui/Badge';
 import { Card } from '../ui/Card';
 import { formatDistanceToNow } from '../../utils/formatters';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+
 /**
  * Live Monitoring Feed Component
  * Combines weather, financial, shipping, geopolitical, and social media data
@@ -19,7 +21,7 @@ export default function LiveMonitoringFeed({ organizationId, onViewEvent }) {
   // Fetch weather data
   const fetchWeather = async () => {
     try {
-      const response = await fetch(`http://localhost:8000/api/weather/organization/${organizationId}/`);
+      const response = await fetch(`${API_BASE_URL}/api/weather/organization/${organizationId}/`);
       if (!response.ok) throw new Error('Failed to fetch weather data');
       const data = await response.json();
       setWeatherData(data);
@@ -37,10 +39,10 @@ export default function LiveMonitoringFeed({ organizationId, onViewEvent }) {
   const fetchEnhancedData = async () => {
     try {
       const [portsRes, trendsRes, riskRes, exchangeRes] = await Promise.all([
-        fetch('http://localhost:8000/api/enhanced/shipping/major-ports'),
-        fetch('http://localhost:8000/api/enhanced/social/trends?keyword=supply%20chain'),
-        fetch(`http://localhost:8000/api/enhanced/risk/dashboard?organization_id=${organizationId}`),
-        fetch('http://localhost:8000/api/enhanced/financial/exchange-rates?base_currency=USD')
+        fetch(`${API_BASE_URL}/api/enhanced/shipping/major-ports`),
+        fetch(`${API_BASE_URL}/api/enhanced/social/trends?keyword=supply%20chain`),
+        fetch(`${API_BASE_URL}/api/enhanced/risk/dashboard?organization_id=${organizationId}`),
+        fetch(`${API_BASE_URL}/api/enhanced/financial/exchange-rates?base_currency=USD`)
       ]);
 
       const riskData = riskRes.ok ? await riskRes.json() : null;
@@ -85,7 +87,7 @@ export default function LiveMonitoringFeed({ organizationId, onViewEvent }) {
       }
 
       // Fetch commodities
-      const commoditiesRes = await fetch('http://localhost:8000/api/enhanced/financial/commodities', {
+      const commoditiesRes = await fetch(`${API_BASE_URL}/api/enhanced/financial/commodities`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ commodities: commoditiesToFetch })
