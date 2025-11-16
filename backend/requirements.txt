@@ -25,6 +25,7 @@ langgraph-prebuilt
 # External APIs
 yfinance
 pytrends
+httpx
 
 # Utilities
 python-dotenv

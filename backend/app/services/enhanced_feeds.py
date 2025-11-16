@@ -32,13 +32,18 @@ class FinancialDataService:
             else:
                 price_change = 0
             
+            # Convert numpy types to native Python types for JSON serialization
+            current_price = info.get('regularMarketPrice')
+            market_cap = info.get('marketCap')
+            price_change_val = float(price_change) if price_change else 0
+            
             return {
                 "ticker": ticker,
-                "current_price": info.get('regularMarketPrice'),
-                "price_change_5d": round(price_change, 2),
-                "market_cap": info.get('marketCap'),
-                "financial_health": self._assess_financial_health(price_change),
-                "alert_level": "HIGH" if price_change < -15 else "MEDIUM" if price_change < -10 else "LOW",
+                "current_price": float(current_price) if current_price else None,
+                "price_change_5d": round(price_change_val, 2),
+                "market_cap": int(market_cap) if market_cap else None,
+                "financial_health": self._assess_financial_health(price_change_val),
+                "alert_level": "HIGH" if price_change_val < -15 else "MEDIUM" if price_change_val < -10 else "LOW",
                 "timestamp": datetime.now().isoformat()
             }
             
@@ -87,11 +92,15 @@ class FinancialDataService:
                         price_change = ((hist['Close'].iloc[-1] - hist['Close'].iloc[0]) / 
                                       hist['Close'].iloc[0] * 100)
                         
+                        # Convert numpy types to native Python types for JSON serialization
+                        current_price = float(hist['Close'].iloc[-1])
+                        price_change_val = float(price_change)
+                        
                         results[commodity] = {
-                            "current_price": round(hist['Close'].iloc[-1], 2),
-                            "change_30d": round(price_change, 2),
-                            "alert": price_change > 30 or price_change < -30,
-                            "trend": "UP" if price_change > 5 else "DOWN" if price_change < -5 else "STABLE"
+                            "current_price": round(current_price, 2),
+                            "change_30d": round(price_change_val, 2),
+                            "alert": bool(price_change_val > 30 or price_change_val < -30),
+                            "trend": "UP" if price_change_val > 5 else "DOWN" if price_change_val < -5 else "STABLE"
                         }
                 except Exception as e:
                     logger.error(f"Commodity price error for {commodity}: {str(e)}")
