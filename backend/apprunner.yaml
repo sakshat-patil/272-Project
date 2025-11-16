@@ -1,8 +1,6 @@
 version: 1.0
 runtime: python311
 
-# For Python 3.11, installs should happen in run.pre-run (revised build).
-# Keep build empty or simple.
 build:
   commands:
     build:
@@ -13,5 +11,9 @@ run:
   pre-run:
     - python3 -m ensurepip --upgrade
     - python3 -m pip install --upgrade pip setuptools wheel
-    - python3 -m pip install --no-cache-dir -r requirements.txt
-  command: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    - python3 -m pip install --no-cache-dir -r /app/backend/requirements.txt
+  # Use Python to read PORT, since App Runner doesn't expand $PORT in the command
+  command: python3 -c "import os, uvicorn; uvicorn.run('app.main:app', host='0.0.0.0', port=int(os.environ.get('PORT','8080')))"
+  env:
+    - name: GOOGLE_API_KEY
+      value: AIzaSyBGXWTPU1M37Ido3CiPkJMVrIWga3YhRYU
