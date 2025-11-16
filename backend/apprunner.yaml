@@ -12,8 +12,4 @@ run:
     - python3 -m ensurepip --upgrade
     - python3 -m pip install --upgrade pip setuptools wheel
     - python3 -m pip install --no-cache-dir -r /app/backend/requirements.txt
-  # Use Python to read PORT, since App Runner doesn't expand $PORT in the command
-  command: python3 -c "import os, uvicorn; uvicorn.run('app.main:app', host='0.0.0.0', port=int(os.environ.get('PORT','8080')))"
-  env:
-    - name: GOOGLE_API_KEY
-      value: AIzaSyBGXWTPU1M37Ido3CiPkJMVrIWga3YhRYU
+  command: python3 /app/backend/run_server.py
