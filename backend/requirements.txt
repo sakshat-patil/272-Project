@@ -14,6 +14,7 @@ bcrypt==5.0.0
 python-multipart==0.0.20
 
 # AI/LangChain
+google-generativeai>=0.8.0
 langchain==1.0.7
 langchain-core==1.0.5
 langchain-google-genai==3.0.3
