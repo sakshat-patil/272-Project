@@ -16,7 +16,7 @@ class EventParserAgent:
     """
     
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
         self.agent_name = "Event Parser Agent"
     
     def parse_event(self, event_input: str, severity_level: int) -> Dict[str, Any]:

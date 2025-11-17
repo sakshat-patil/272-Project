@@ -12,7 +12,7 @@ class SupplierMatcherAgent:
     """
     
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
         self.agent_name = "Supplier Matcher Agent"
     
     def find_affected_suppliers(

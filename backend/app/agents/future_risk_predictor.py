@@ -12,7 +12,7 @@ class FutureRiskPredictorAgent:
     """
     
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
         self.agent_name = "Future Risk Predictor Agent"
     
     def predict_future_risks(

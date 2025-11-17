@@ -12,7 +12,7 @@ class RecommendationGeneratorAgent:
     """
     
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-2.0-flash-exp')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
         self.agent_name = "Recommendation Generator Agent"
     
     def generate_recommendations(

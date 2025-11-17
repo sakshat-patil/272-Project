@@ -9,7 +9,7 @@ class RiskAnalyzerAgent:
     """
     
     def __init__(self):
-        self.model = genai.GenerativeModel('gemini-1.5-flash')
+        self.model = genai.GenerativeModel('gemini-2.5-flash')
         self.agent_name = "Risk Analyzer Agent"
     
     def analyze_risk(
