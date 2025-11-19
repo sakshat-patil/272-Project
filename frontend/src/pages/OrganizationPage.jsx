@@ -106,7 +106,7 @@ const OrganizationPage = () => {
     if (processingEvent.processing_status === 'completed') {
       setPollingInterval(null);
       queryClient.invalidateQueries(['organization', id]);
-      // Keep loading until results UI is confirmed rendered
+      // Keep loading - will be cleared by onRender callback
     } else if (processingEvent.processing_status === 'failed') {
       setPollingInterval(null);
       setIsCreatingEvent(false);
@@ -117,26 +117,10 @@ const OrganizationPage = () => {
     }
   }, [processingEvent, id, queryClient]);
 
-  // Detect when results section with all data is mounted
-  useEffect(() => {
-    if (processingEvent?.processing_status === 'completed' &&
-        processingEvent.risk_analysis &&
-        processingEvent.recommendations &&
-        processingEvent.playbook &&
-        activeTab === 'analysis') {
-      // All result data is loaded, wait a moment for rendering then stop loading
-      const timer = setTimeout(() => {
-        setResultsRendered(true);
-      }, 500);
-      return () => clearTimeout(timer);
-    }
-  }, [processingEvent, activeTab]);
-
-  // Clear loading state only when results are confirmed rendered
+  // Clear loading state when results are rendered (triggered by component callback)
   useEffect(() => {
     if (resultsRendered) {
-      const timer = setTimeout(() => setIsCreatingEvent(false), 100);
-      return () => clearTimeout(timer);
+      setIsCreatingEvent(false);
     }
   }, [resultsRendered]);
 
