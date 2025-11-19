@@ -336,7 +336,9 @@ const OrganizationPage = () => {
               organizationId={id}
               onAnalysisComplete={handleAnalyzeEvent}
               isProcessing={
-                isCreatingEvent || processingEvent?.processing_status === 'processing'
+                isCreatingEvent || 
+                processingEvent?.processing_status === 'processing' ||
+                (processingEvent?.processing_status === 'completed' && isCreatingEvent)
               }
             />
 
