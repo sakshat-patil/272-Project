@@ -104,7 +104,9 @@ const OrganizationPage = () => {
     if (processingEvent.processing_status === 'completed') {
       setPollingInterval(null);
       queryClient.invalidateQueries(['organization', id]);
-      setIsCreatingEvent(false);
+      // Keep isCreatingEvent true until results are displayed
+      // It will be set to false after a short delay to show results
+      setTimeout(() => setIsCreatingEvent(false), 500);
     } else if (processingEvent.processing_status === 'failed') {
       setPollingInterval(null);
       setIsCreatingEvent(false);
