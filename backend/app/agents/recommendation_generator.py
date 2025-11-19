@@ -118,35 +118,18 @@ class RecommendationGeneratorAgent:
         """
         Use AI to generate strategic recommendations
         """
-        prompt = f"""
-You are a supply chain strategy expert. Based on the following situation, provide strategic recommendations.
-
+        prompt = f"""Supply chain recommendations (no markdown):
 Incident: {parsed_event.get('summary', 'Supply chain disruption')}
-Risk Level: {risk_analysis.get('risk_level', 'MEDIUM')}
-Risk Score: {risk_analysis.get('overall_risk_score', 50)}/100
-Affected Suppliers: {len(affected_suppliers)}
+Risk: {risk_analysis.get('risk_level', 'MEDIUM')} ({risk_analysis.get('overall_risk_score', 50)}/100)
+Affected: {len(affected_suppliers)} suppliers
 
-Generate strategic recommendations in JSON format:
+JSON format:
 {{
-    "immediate_actions": [
-        {{"action": "<action>", "priority": "<high/medium/low>", "timeline": "<timeframe>"}},
-        ...
-    ],
-    "short_term_strategies": [
-        {{"strategy": "<strategy>", "expected_impact": "<description>", "timeline": "1-7 days"}},
-        ...
-    ],
-    "long_term_improvements": [
-        {{"improvement": "<improvement>", "rationale": "<why this helps>", "timeline": "1+ months"}},
-        ...
-    ],
-    "contingency_plans": [
-        "<contingency 1>",
-        "<contingency 2>"
-    ]
+    "immediate_actions": [{{"action": "...", "priority": "high/medium/low", "timeline": "..."}}],
+    "short_term_strategies": [{{"strategy": "...", "expected_impact": "...", "timeline": "1-7 days"}}],
+    "long_term_improvements": [{{"improvement": "...", "rationale": "...", "timeline": "1+ months"}}],
+    "contingency_plans": ["..."]
 }}
-
-Provide 3-4 items for each category. Return ONLY valid JSON.
 """
         
         try:

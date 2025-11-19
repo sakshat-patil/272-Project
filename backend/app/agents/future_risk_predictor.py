@@ -168,29 +168,13 @@ class FutureRiskPredictorAgent:
             "risk_factors": [rf["risk_type"] for rf in risk_factors]
         }
         
-        prompt = f"""
-You are a supply chain risk prediction expert. Based on the following supplier portfolio, predict potential risks in the next {prediction_period_days} days.
+        prompt = f"""Predict supply chain risks for next {prediction_period_days} days (no markdown):
+Industry: {organization.industry.value}
+Suppliers: {json.dumps(supplier_summary)}
+Risk Factors: {json.dumps([rf["risk_type"] + ": " + rf["description"] for rf in risk_factors])}
 
-Organization Industry: {organization.industry.value}
-Supplier Portfolio Summary: {json.dumps(supplier_summary, indent=2)}
-
-Identified Risk Factors: {json.dumps([rf["risk_type"] + ": " + rf["description"] for rf in risk_factors], indent=2)}
-
-Generate predictions in JSON format:
-{{
-    "predictions": [
-        {{
-            "timeframe": "<e.g., 'Next 30 days', 'Next 60 days'>",
-            "risk_scenario": "<description of potential risk>",
-            "probability": <0.0-1.0>,
-            "estimated_impact": "<low/medium/high/critical>",
-            "early_warning_signs": ["<sign 1>", "<sign 2>"],
-            "preventive_actions": ["<action 1>", "<action 2>"]
-        }}
-    ]
-}}
-
-Generate 3-5 realistic predictions. Return ONLY valid JSON.
+JSON format:
+{{"predictions": [{{"timeframe": "...", "risk_scenario": "...", "probability": 0.0-1.0, "estimated_impact": "low/medium/high/critical", "early_warning_signs": [...], "preventive_actions": [...]}}]}}
 """
         
         try:

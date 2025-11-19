@@ -23,35 +23,20 @@ class EventParserAgent:
         """
         Parse natural language event description into structured data
         """
-        prompt = f"""
-You are a supply chain risk analysis expert. Parse the following incident description and extract key details.
+        prompt = f"""Parse this supply chain incident into JSON (no markdown):
 
-Incident Description: {event_input}
-Severity Level (1-5): {severity_level}
+Incident: {event_input}
+Severity: {severity_level}/5
 
-Extract and return ONLY a valid JSON object with the following structure:
+Return JSON:
 {{
-    "event_type": "<one of: Natural Disaster, Geopolitical, Labor Strike, Logistics, Economic, Cyber Security, Regulatory, Other>",
-    "location": {{
-        "country": "<country name>",
-        "city": "<city name if mentioned>",
-        "region": "<broader region like 'East Asia', 'Europe'>",
-        "estimated_latitude": <float or null>,
-        "estimated_longitude": <float or null>
-    }},
-    "severity_assessment": {{
-        "level": {severity_level},
-        "description": "<brief description of severity>",
-        "estimated_duration": "<e.g., '2-3 days', '1-2 weeks', '1+ month'>",
-        "affected_radius_km": <estimated radius in km>
-    }},
-    "key_industries_affected": ["<industry1>", "<industry2>"],
-    "summary": "<2-3 sentence summary of the incident>",
-    "keywords": ["<keyword1>", "<keyword2>", "<keyword3>"]
-}}
-
-CRITICAL: Return ONLY the JSON object, no markdown, no explanations, no additional text.
-"""
+    "event_type": "Natural Disaster|Geopolitical|Labor Strike|Logistics|Economic|Cyber Security|Regulatory|Other",
+    "location": {{"country": "...", "city": "...", "region": "...", "estimated_latitude": 0.0, "estimated_longitude": 0.0}},
+    "severity_assessment": {{"level": {severity_level}, "description": "...", "estimated_duration": "...", "affected_radius_km": 0}},
+    "key_industries_affected": ["..."],
+    "summary": "...",
+    "keywords": ["..."]
+}}"""
         
         try:
             response = self.model.generate_content(prompt)
