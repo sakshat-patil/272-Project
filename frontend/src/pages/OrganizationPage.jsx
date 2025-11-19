@@ -33,6 +33,7 @@ const OrganizationPage = () => {
   const [processingEventId, setProcessingEventId] = useState(null);
   const [pollingInterval, setPollingInterval] = useState(null);
   const [isCreatingEvent, setIsCreatingEvent] = useState(false);
+  const [resultsRendered, setResultsRendered] = useState(false);
 
   // Fetch organization
   const { data: organization, isLoading: orgLoading } = useQuery({
@@ -98,32 +99,31 @@ const OrganizationPage = () => {
   // Stop polling when event is completed
   useEffect(() => {
     if (!processingEvent) {
+      setResultsRendered(false);
       return;
     }
 
     if (processingEvent.processing_status === 'completed') {
       setPollingInterval(null);
       queryClient.invalidateQueries(['organization', id]);
-      // Don't set isCreatingEvent to false - let it stay true
-      // It will be cleared when results are visible
+      // Don't set isCreatingEvent to false yet - wait for results to render
     } else if (processingEvent.processing_status === 'failed') {
       setPollingInterval(null);
       setIsCreatingEvent(false);
+      setResultsRendered(false);
     } else if (processingEvent.processing_status === 'processing') {
       setIsCreatingEvent(true);
+      setResultsRendered(false);
     }
   }, [processingEvent, id, queryClient]);
 
-  // Clear loading state when completed results are ready to display
+  // Clear loading state only when results are actually rendered
   useEffect(() => {
-    if (processingEvent?.processing_status === 'completed' && 
-        processingEvent.risk_analysis && 
-        processingEvent.recommendations) {
-      // Results are fully loaded and ready to display
-      const timer = setTimeout(() => setIsCreatingEvent(false), 300);
+    if (resultsRendered) {
+      const timer = setTimeout(() => setIsCreatingEvent(false), 200);
       return () => clearTimeout(timer);
     }
-  }, [processingEvent]);
+  }, [resultsRendered]);
 
   const handleCreateSupplier = async (formData) => {
     await createSupplierMutation.mutateAsync(formData);
@@ -369,6 +369,7 @@ const OrganizationPage = () => {
                     <RiskAssessmentDisplay
                       riskAnalysis={processingEvent.risk_analysis}
                       affectedSuppliers={processingEvent.affected_suppliers}
+                      onRender={() => setResultsRendered(true)}
                     />
 
                     <RecommendationsDisplay

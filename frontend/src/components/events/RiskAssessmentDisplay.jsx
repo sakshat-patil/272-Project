@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AlertTriangle, TrendingUp, Users, DollarSign } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/Card';
 import Badge from '../ui/Badge';
 import { getRiskLevelColor, formatRiskScore, getRiskScoreColor } from '../../utils/riskUtils';
 import { formatCurrency } from '../../utils/formatters';
 
-const RiskAssessmentDisplay = ({ riskAnalysis, affectedSuppliers }) => {
+const RiskAssessmentDisplay = ({ riskAnalysis, affectedSuppliers, onRender }) => {
   if (!riskAnalysis) return null;
 
   const { 
@@ -15,6 +15,13 @@ const RiskAssessmentDisplay = ({ riskAnalysis, affectedSuppliers }) => {
     financial_impact,
     risk_summary 
   } = riskAnalysis;
+
+  // Notify parent when component is rendered
+  useEffect(() => {
+    if (onRender) {
+      onRender();
+    }
+  }, [onRender]);
 
   return (
     <div className="space-y-6">
