@@ -4,10 +4,9 @@ import Button from '../ui/Button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '../ui/Card';
 import Alert, { AlertTitle, AlertDescription } from '../ui/Alert';
 
-const EventAnalyzer = ({ organizationId, onAnalysisComplete }) => {
+const EventAnalyzer = ({ organizationId, onAnalysisComplete, isProcessing }) => {
   const [eventInput, setEventInput] = useState('');
   const [severityLevel, setSeverityLevel] = useState(3);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [error, setError] = useState(null);
 
   const severityLabels = {
@@ -36,9 +35,8 @@ const EventAnalyzer = ({ organizationId, onAnalysisComplete }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!eventInput.trim()) return;
+    if (!eventInput.trim() || isProcessing) return;
 
-    setIsAnalyzing(true);
     setError(null);
 
     try {
@@ -49,8 +47,6 @@ const EventAnalyzer = ({ organizationId, onAnalysisComplete }) => {
       });
     } catch (err) {
       setError(err.message || 'Failed to analyze event');
-    } finally {
-      setIsAnalyzing(false);
     }
   };
 
@@ -83,7 +79,7 @@ const EventAnalyzer = ({ organizationId, onAnalysisComplete }) => {
               rows="4"
               className="flex w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
               required
-              disabled={isAnalyzing}
+              disabled={isProcessing}
             />
           </div>
 
@@ -99,7 +95,7 @@ const EventAnalyzer = ({ organizationId, onAnalysisComplete }) => {
                 value={severityLevel}
                 onChange={(e) => setSeverityLevel(parseInt(e.target.value))}
                 className="flex-1 h-2 rounded-lg appearance-none cursor-pointer"
-                disabled={isAnalyzing}
+                disabled={isProcessing}
               />
               <div className={`w-12 h-12 rounded-full ${severityColors[severityLevel]} flex items-center justify-center text-white font-bold`}>
                 {severityLevel}
@@ -122,10 +118,10 @@ const EventAnalyzer = ({ organizationId, onAnalysisComplete }) => {
           <div className="flex justify-end">
             <Button
               type="submit"
-              disabled={isAnalyzing || !eventInput.trim()}
+              disabled={isProcessing || !eventInput.trim()}
               className="w-full sm:w-auto"
             >
-              {isAnalyzing ? (
+              {isProcessing ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                   Analyzing...
@@ -149,7 +145,7 @@ const EventAnalyzer = ({ organizationId, onAnalysisComplete }) => {
               <button
                 key={idx}
                 onClick={() => loadExample(example)}
-                disabled={isAnalyzing}
+                disabled={isProcessing}
                 className="w-full text-left px-3 py-2 text-sm bg-gray-50 hover:bg-gray-100 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {example}

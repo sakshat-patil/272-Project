@@ -32,6 +32,7 @@ const OrganizationPage = () => {
   const [activeTab, setActiveTab] = useState('suppliers');
   const [processingEventId, setProcessingEventId] = useState(null);
   const [pollingInterval, setPollingInterval] = useState(null);
+  const [isCreatingEvent, setIsCreatingEvent] = useState(false);
 
   // Fetch organization
   const { data: organization, isLoading: orgLoading } = useQuery({
@@ -89,13 +90,26 @@ const OrganizationPage = () => {
       setActiveTab('analysis');
       setPollingInterval(2000); // Poll every 2 seconds
     },
+    onError: () => {
+      setIsCreatingEvent(false);
+    },
   });
 
   // Stop polling when event is completed
   useEffect(() => {
-    if (processingEvent && processingEvent.processing_status === 'completed') {
+    if (!processingEvent) {
+      return;
+    }
+
+    if (processingEvent.processing_status === 'completed') {
       setPollingInterval(null);
       queryClient.invalidateQueries(['organization', id]);
+      setIsCreatingEvent(false);
+    } else if (processingEvent.processing_status === 'failed') {
+      setPollingInterval(null);
+      setIsCreatingEvent(false);
+    } else if (processingEvent.processing_status === 'processing') {
+      setIsCreatingEvent(true);
     }
   }, [processingEvent, id, queryClient]);
 
@@ -104,7 +118,14 @@ const OrganizationPage = () => {
   };
 
   const handleAnalyzeEvent = async (eventData) => {
-    await createEventMutation.mutateAsync(eventData);
+    if (isCreatingEvent) return;
+    setIsCreatingEvent(true);
+    try {
+      await createEventMutation.mutateAsync(eventData);
+    } catch (error) {
+      setIsCreatingEvent(false);
+      throw error;
+    }
   };
 
   const handleViewWeatherEvent = (eventId) => {
@@ -302,6 +323,9 @@ const OrganizationPage = () => {
             <EventAnalyzer
               organizationId={id}
               onAnalysisComplete={handleAnalyzeEvent}
+              isProcessing={
+                isCreatingEvent || processingEvent?.processing_status === 'processing'
+              }
             />
 
             {processingEvent && (
