@@ -104,9 +104,8 @@ const OrganizationPage = () => {
     if (processingEvent.processing_status === 'completed') {
       setPollingInterval(null);
       queryClient.invalidateQueries(['organization', id]);
-      // Keep isCreatingEvent true until results are displayed
-      // It will be set to false after a short delay to show results
-      setTimeout(() => setIsCreatingEvent(false), 500);
+      // Don't set isCreatingEvent to false - let it stay true
+      // It will be cleared when results are visible
     } else if (processingEvent.processing_status === 'failed') {
       setPollingInterval(null);
       setIsCreatingEvent(false);
@@ -114,6 +113,17 @@ const OrganizationPage = () => {
       setIsCreatingEvent(true);
     }
   }, [processingEvent, id, queryClient]);
+
+  // Clear loading state when completed results are ready to display
+  useEffect(() => {
+    if (processingEvent?.processing_status === 'completed' && 
+        processingEvent.risk_analysis && 
+        processingEvent.recommendations) {
+      // Results are fully loaded and ready to display
+      const timer = setTimeout(() => setIsCreatingEvent(false), 300);
+      return () => clearTimeout(timer);
+    }
+  }, [processingEvent]);
 
   const handleCreateSupplier = async (formData) => {
     await createSupplierMutation.mutateAsync(formData);
