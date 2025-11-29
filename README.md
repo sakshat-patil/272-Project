@@ -86,7 +86,8 @@ Our platform automates and accelerates supply chain risk management through inte
 - Multi-organization support
 - Organization-specific supplier portfolios
 - Custom onboarding workflows
-- Shipping route tracking
+- Shipping route tracking with historical data visibility
+- Historical event analysis for shipping lines (500km radius)
 - Organization-level risk dashboards
 
 ## Multi-Agent Architecture
@@ -249,6 +250,7 @@ The frontend will be available at `http://localhost:5173` (development) or serve
 - `GET /api/organizations/` - List all organizations
 - `GET /api/organizations/{id}` - Get organization details
 - `PUT /api/organizations/{id}` - Update organization
+- `GET /api/events/historical` - Get historical events for shipping routes
 
 ### Suppliers
 - `POST /api/suppliers/` - Add new supplier
@@ -303,14 +305,22 @@ curl -X POST http://localhost:8080/api/auth/login \
 ### 2. Create Organization & Suppliers
 
 ```bash
-# Create organization
+# Create organization with onboarding flow
+# During onboarding, users define their shipping route (e.g., Singapore → Los Angeles)
+# The system automatically displays historical disruption events along that route
+# This includes past typhoons, port congestion, earthquakes, and other events within 500km
+
 curl -X POST http://localhost:8080/api/organizations/ \
   -H "Authorization: Bearer YOUR_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "name": "TechCorp",
     "industry": "Electronics",
-    "headquarters_location": "San Francisco, USA"
+    "headquarters_location": "San Francisco, USA",
+    "shipping_route": {
+      "origin": {"name": "Port of Singapore", "latitude": 1.2644, "longitude": 103.8215},
+      "destination": {"name": "Port of Los Angeles", "latitude": 33.7405, "longitude": -118.2716}
+    }
   }'
 
 # Add supplier
@@ -364,6 +374,7 @@ The system continuously monitors:
 - **Analysis Speed**: 15-30 seconds vs. 2-5 days manual
 - **Automated workflows**: Eliminate manual data gathering
 - **Real-time alerts**: Instant notification of critical events
+- **Historical insights**: View past disruptions for shipping routes during onboarding
 
 ### Accuracy & Intelligence
 - **Geographic matching**: >95% accuracy using coordinate-based calculations
