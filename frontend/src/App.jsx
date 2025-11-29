@@ -8,6 +8,7 @@ import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
 import OrganizationPage from './pages/OrganizationPage';
 import MonitoringPage from './pages/MonitoringPage';
+import OnboardingPage from './pages/OnboardingPage';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -33,6 +34,7 @@ function App() {
               {/* Public routes */}
               <Route path="/login" element={<LoginPage />} />
               <Route path="/signup" element={<SignupPage />} />
+              <Route path="/onboarding" element={<OnboardingPage />} />
               
               {/* Protected routes */}
               <Route path="/" element={

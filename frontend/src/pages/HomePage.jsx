@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Building2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Building2, Ship, ArrowRight } from 'lucide-react';
 import { organizationsAPI } from '../services/api';
 import OrganizationCard from '../components/organization/OrganizationCard';
 import OrganizationForm from '../components/organization/OrganizationForm';
@@ -11,6 +12,7 @@ import Alert, { AlertTitle, AlertDescription } from '../components/ui/Alert';
 const HomePage = () => {
   const [showForm, setShowForm] = useState(false);
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // Fetch organizations
   const { data: organizations, isLoading, error } = useQuery({
@@ -55,6 +57,31 @@ const HomePage = () => {
 
   return (
     <div className="space-y-6">
+      {/* Onboarding Banner */}
+      {(!organizations || organizations.length === 0) && (
+        <div className="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-lg p-6 text-white">
+          <div className="flex items-center justify-between">
+            <div className="flex-1">
+              <h2 className="text-2xl font-bold mb-2">🚢 Get Started with Supply Chain Risk Monitoring</h2>
+              <p className="text-blue-50 mb-4">
+                Tell us about your company and shipping routes. We'll show you historical risk patterns
+                and help you monitor for future disruptions.
+              </p>
+              <Button 
+                onClick={() => navigate('/onboarding')}
+                variant="secondary"
+                className="bg-white text-blue-600 hover:bg-blue-50"
+              >
+                <Ship className="h-4 w-4 mr-2" />
+                Start Onboarding
+                <ArrowRight className="h-4 w-4 ml-2" />
+              </Button>
+            </div>
+            <Ship className="h-24 w-24 opacity-20 hidden lg:block" />
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -63,7 +90,7 @@ const HomePage = () => {
             Monitor and manage supply chain risks across your organizations
           </p>
         </div>
-        <Button onClick={() => setShowForm(true)}>
+        <Button onClick={() => navigate('/onboarding')}>
           <Plus className="h-4 w-4 mr-2" />
           Add Organization
         </Button>

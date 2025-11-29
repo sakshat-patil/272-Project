@@ -14,7 +14,18 @@ def create_organization(
     db: Session = Depends(get_db)
 ):
     """Create a new organization"""
-    return crud.create_organization(db, organization)
+    try:
+        return crud.create_organization(db, organization)
+    except Exception as e:
+        if "UNIQUE constraint failed" in str(e) and "organizations.name" in str(e):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail=f"Organization with name '{organization.name}' already exists"
+            )
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to create organization: {str(e)}"
+        )
 
 
 @router.get("/", response_model=List[schemas.OrganizationResponse])

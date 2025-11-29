@@ -9,6 +9,18 @@ from app.models import (
 
 # ============ Organization Schemas ============
 
+class ShippingRouteLocation(BaseModel):
+    port: str
+    country: str
+    latitude: float
+    longitude: float
+
+
+class ShippingRoute(BaseModel):
+    origin: ShippingRouteLocation
+    destination: ShippingRouteLocation
+
+
 class OrganizationBase(BaseModel):
     name: str = Field(..., min_length=1, max_length=200)
     industry: IndustryType
@@ -17,7 +29,7 @@ class OrganizationBase(BaseModel):
 
 
 class OrganizationCreate(OrganizationBase):
-    pass
+    shipping_route: Optional[ShippingRoute] = None
 
 
 class OrganizationUpdate(BaseModel):
@@ -25,11 +37,13 @@ class OrganizationUpdate(BaseModel):
     industry: Optional[IndustryType] = None
     headquarters_location: Optional[str] = None
     description: Optional[str] = None
+    shipping_route: Optional[ShippingRoute] = None
     current_risk_score: Optional[float] = None
 
 
 class OrganizationResponse(OrganizationBase):
     id: int
+    shipping_route: Optional[Dict[str, Any]] = None
     current_risk_score: float
     created_at: datetime
     updated_at: datetime

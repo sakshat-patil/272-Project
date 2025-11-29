@@ -9,7 +9,15 @@ from app import models, schemas
 # ============ Organization CRUD ============
 
 def create_organization(db: Session, org: schemas.OrganizationCreate) -> models.Organization:
-    db_org = models.Organization(**org.model_dump())
+    org_data = org.model_dump()
+    # Convert shipping_route to dict if it's a Pydantic model
+    if 'shipping_route' in org_data and org_data['shipping_route'] is not None:
+        if hasattr(org_data['shipping_route'], 'model_dump'):
+            org_data['shipping_route'] = org_data['shipping_route'].model_dump()
+        elif hasattr(org_data['shipping_route'], 'dict'):
+            org_data['shipping_route'] = org_data['shipping_route'].dict()
+    
+    db_org = models.Organization(**org_data)
     db.add(db_org)
     db.commit()
     db.refresh(db_org)

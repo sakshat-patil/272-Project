@@ -62,6 +62,7 @@ class Organization(Base):
     industry = Column(Enum(IndustryType), nullable=False)
     headquarters_location = Column(String(200))
     description = Column(Text)
+    shipping_route = Column(JSON)  # Store onboarding route data: {origin: {...}, destination: {...}}
     current_risk_score = Column(Float, default=0.0)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -134,9 +135,14 @@ class Event(Base):
     severity_level = Column(Integer, default=3)  # 1-5
     
     # Parsed Event Details
+    title = Column(String(300))  # Event title for historical display
     event_type = Column(Enum(EventType))
     location = Column(String(200))
     description = Column(Text)
+    latitude = Column(Float)  # Geographic coordinates for historical matching
+    longitude = Column(Float)
+    event_date = Column(DateTime)  # When the event occurred
+    impact_assessment = Column(Text)  # Impact severity assessment
     
     # Analysis Results
     affected_supplier_count = Column(Integer, default=0)
