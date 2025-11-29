@@ -1,6 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 from app.database import init_db
 from app.routers import organizations, suppliers, events, predictions, risk_history, weather, auth, enhanced_data, monitoring, historical_events, supplier_monitoring
