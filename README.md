@@ -2,6 +2,12 @@
 
 Project Url: http://54.174.199.12:3000/
 
+## Team Information
+- **Course**: CMPE 272
+- **University**: San Jose State University
+- **Project Deadline**: December 3, 2025
+- **Team Members**: Prathamesh Ravindra Sawant, Noonety Mani Mokshith
+
 ## Overview
 
 An enterprise-grade AI-powered platform that analyzes supply chain disruption events in real-time and generates actionable incident response plans. The system leverages a multi-agent architecture powered by Google Gemini AI to transform days-long manual risk assessments into 15-30 second automated analyses.
