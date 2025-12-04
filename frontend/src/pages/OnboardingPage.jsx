@@ -165,12 +165,19 @@ const OnboardingPage = () => {
 
   const createOrganizationMutation = useMutation({
     mutationFn: async (data) => {
+      console.log('Creating organization with data:', data);
       const response = await organizationsAPI.create(data);
+      console.log('Organization created:', response.data);
       return response.data;
     },
     onSuccess: (org) => {
+      console.log('Organization created successfully, navigating to home');
       queryClient.invalidateQueries(['organizations']);
       navigate('/');
+    },
+    onError: (error) => {
+      console.error('Failed to create organization:', error);
+      alert('Failed to create organization: ' + (error.response?.data?.detail || error.message));
     }
   });
 
@@ -194,26 +201,32 @@ const OnboardingPage = () => {
 
   const handleSubmit = async (e) => {
     if (e) e.preventDefault();
-    await createOrganizationMutation.mutateAsync({
-      name: formData.companyName,
-      industry: formData.industry,
-      headquarters_location: formData.headquarters,
-      description: formData.description,
-      shipping_route: {
-        origin: {
-          port: formData.originPort,
-          country: formData.originCountry,
-          latitude: parseFloat(formData.originLatitude),
-          longitude: parseFloat(formData.originLongitude)
-        },
-        destination: {
-          port: formData.destinationPort,
-          country: formData.destinationCountry,
-          latitude: parseFloat(formData.destinationLatitude),
-          longitude: parseFloat(formData.destinationLongitude)
+    console.log('Submit button clicked, form data:', formData);
+    
+    try {
+      await createOrganizationMutation.mutateAsync({
+        name: formData.companyName,
+        industry: formData.industry,
+        headquarters_location: formData.headquarters,
+        description: formData.description,
+        shipping_route: {
+          origin: {
+            port: formData.originPort,
+            country: formData.originCountry,
+            latitude: parseFloat(formData.originLatitude),
+            longitude: parseFloat(formData.originLongitude)
+          },
+          destination: {
+            port: formData.destinationPort,
+            country: formData.destinationCountry,
+            latitude: parseFloat(formData.destinationLatitude),
+            longitude: parseFloat(formData.destinationLongitude)
+          }
         }
-      }
-    });
+      });
+    } catch (error) {
+      console.error('Error in handleSubmit:', error);
+    }
   };
 
   const isStep1Valid = formData.companyName && formData.industry && formData.headquarters;
