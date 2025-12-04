@@ -35,18 +35,6 @@ const Navbar = () => {
               Organizations
             </Link>
             
-            <Link
-              to="/monitoring"
-              className={`px-3 py-2 rounded-md text-sm font-medium ${
-                location.pathname === '/monitoring'
-                  ? 'bg-primary text-white'
-                  : 'text-gray-700 hover:bg-gray-100'
-              }`}
-            >
-              <LineChart className="inline-block h-4 w-4 mr-1" />
-              Monitoring
-            </Link>
-            
             {user && (
               <div className="flex items-center space-x-3 ml-4 pl-4 border-l border-gray-300">
                 <div className="flex items-center space-x-2 text-sm">
